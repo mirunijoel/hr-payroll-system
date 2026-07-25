@@ -2,6 +2,7 @@ from flask import Flask, jsonify
 
 from database import init_db
 from routes.employees import bp as employees_bp
+from routes.leave import bp as leave_bp
 
 
 def create_app(seed_db=True):
@@ -10,6 +11,7 @@ def create_app(seed_db=True):
     init_db(seed=seed_db)
 
     app.register_blueprint(employees_bp)
+    app.register_blueprint(leave_bp)
 
     @app.get("/health")
     def health():
