@@ -5,11 +5,11 @@ and Railway free tiers were both exhausted at the time, so cPanel was the
 available option.
 
 ## cPanel Python App configuration
-- **Application root**: `/home1/pbcbible/hr-payroll-system.pbcbiblestudy.org/backend`
+- **Application root**: `/home1/<user>/<domain>/backend`
 - **Application startup file**: `passenger_wsgi.py`
 - **Application Entry point**: `application`
 - **Python version**: 3.13, virtualenv at
-  `/home1/pbcbible/virtualenv/hr-payroll-system.pbcbiblestudy.org/backend/3.13`
+  `/home1/<user>/virtualenv/<domain>/backend/3.13`
 
 `passenger_wsgi.py` imports the Flask app factory from `app.py` and exposes
 the created app as `application`, which is what Passenger looks for.
