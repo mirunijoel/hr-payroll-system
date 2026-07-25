@@ -363,3 +363,90 @@ def sum_approved_unpaid_days_in_period(employee_id, period_start, period_end):
         end = date.fromisoformat(clipped_end)
         total += (end - start).days + 1
     return total
+
+
+def payroll_run_exists_for_period(period_start, period_end):
+    conn = get_connection()
+    try:
+        row = conn.execute(
+            "SELECT id FROM payroll_runs WHERE period_start = ? AND period_end = ?",
+            (period_start, period_end),
+        ).fetchone()
+        return row["id"] if row else None
+    finally:
+        conn.close()
+
+
+def create_payroll_run(period_start, period_end):
+    conn = get_connection()
+    try:
+        with conn:
+            cursor = conn.execute(
+                "INSERT INTO payroll_runs (period_start, period_end) VALUES (?, ?)",
+                (period_start, period_end),
+            )
+        return cursor.lastrowid
+    finally:
+        conn.close()
+
+
+def get_payroll_run(run_id):
+    conn = get_connection()
+    try:
+        row = conn.execute("SELECT * FROM payroll_runs WHERE id = ?", (run_id,)).fetchone()
+        return _row_to_dict(row)
+    finally:
+        conn.close()
+
+
+def list_payroll_runs():
+    conn = get_connection()
+    try:
+        rows = conn.execute("SELECT * FROM payroll_runs ORDER BY period_start DESC").fetchall()
+        return [_row_to_dict(row) for row in rows]
+    finally:
+        conn.close()
+
+
+def create_payslip(payroll_run_id, employee_id, gross_pay, tax_deduction, social_security_deduction, net_pay, unpaid_days, notes=None):
+    conn = get_connection()
+    try:
+        with conn:
+            cursor = conn.execute(
+                """
+                INSERT INTO payslips
+                    (payroll_run_id, employee_id, gross_pay, tax_deduction, social_security_deduction, net_pay, unpaid_days, notes)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    payroll_run_id,
+                    employee_id,
+                    gross_pay,
+                    tax_deduction,
+                    social_security_deduction,
+                    net_pay,
+                    unpaid_days,
+                    notes,
+                ),
+            )
+        return cursor.lastrowid
+    finally:
+        conn.close()
+
+
+def list_payslips_for_run(run_id):
+    conn = get_connection()
+    try:
+        rows = conn.execute(
+            """
+            SELECT p.*, e.name AS employee_name, e.team_id AS employee_team_id
+            FROM payslips p
+            JOIN employees e ON e.id = p.employee_id
+            WHERE p.payroll_run_id = ?
+            ORDER BY e.name
+            """,
+            (run_id,),
+        ).fetchall()
+        return [_row_to_dict(row) for row in rows]
+    finally:
+        conn.close()
