@@ -7,16 +7,18 @@ by SQLite, covering employee records with an org hierarchy, a leave
 request/approval workflow with a few real-world safeguards, and a payroll
 engine that prorates salary for mid-month joiners and unpaid leave,
 applies progressive tax brackets, and produces a payslip per employee per
-period. There is no frontend yet, see "What's not built yet" below, the
-API itself is fully functional and can be exercised directly.
+period. A vanilla HTML/CSS/JS dashboard on top covers pending approvals,
+who's out, leave taken, org chart, and payroll generation, served
+directly by Flask, no build step, no framework.
 
 ## Live demo
 
 Hosted at [hr-payroll-system.pbcbiblestudy.org](https://hr-payroll-system.pbcbiblestudy.org)
 on personal cPanel hosting (Render and Railway free tiers were both
-exhausted at the time). See `DEPLOYMENT.md` for how that's set up. Since
-there's no frontend, what's actually reachable there is the JSON API
-described below, not a visual dashboard.
+exhausted at the time). See `DEPLOYMENT.md` for how that's set up. The
+deploy workflow currently only copies `backend/` to the server, so the
+live site serves the JSON API but not yet the frontend dashboard, that
+only runs locally for now (see "What's not built yet" below).
 
 ## Running locally
 
@@ -30,10 +32,10 @@ pip install -r requirements.txt
 python app.py
 ```
 
-The app runs at `http://127.0.0.1:5000`. On first run it creates
-`backend/database.db` from `schema.sql` and seeds it from `seed.sql`
-automatically (subsequent runs leave an existing database alone). A
-`GET /health` request should return `{"status": "ok"}`.
+Open `http://127.0.0.1:5000` in a browser for the dashboard. On first run
+it creates `backend/database.db` from `schema.sql` and seeds it from
+`seed.sql` automatically (subsequent runs leave an existing database
+alone). A `GET /health` request should return `{"status": "ok"}`.
 
 To run the test suite:
 
@@ -43,6 +45,8 @@ python -m pytest
 ```
 
 ### API endpoints
+
+- `GET /api/teams` - lookup list, used by the employee form's team dropdown
 
 Employees:
 - `GET /api/employees` - active employees (`?include_inactive=true` to include deactivated ones)
@@ -155,24 +159,50 @@ A payroll run also refuses to generate twice for the exact same
 payroll for a period. It only catches an exact duplicate date range, not
 an overlapping-but-different one.
 
+## Frontend
+
+Vanilla HTML/CSS/JS, no framework, no build step, served directly by
+Flask (`frontend/` is mounted as the app's static folder). Four tabs:
+
+- **Dashboard**: pending approvals, who's out (today and in the next 14
+  days), leave taken this year by type, and recent payroll runs.
+- **Employees**: the employee table (with a toggle to include
+  deactivated employees), an add-employee form, and the org chart as a
+  nested tree.
+- **Leave**: status-filterable request list with short-notice/stale
+  badges, a submit form, and approve/reject actions. Since there's no
+  authentication, an "Acting as" selector stands in for whoever is
+  deciding, and gets sent as `decided_by`.
+- **Payroll**: a generate-payroll form, the list of past runs, and the
+  selected run's payslips.
+
+Every view fetches its own data on load and shows a loading state, an
+empty state with a specific message ("No pending approvals." rather
+than a blank table), or an error state if the request fails, there's no
+silent blank screen for any of the three. Verified all four tabs and
+their forms directly in a browser (Playwright-driven Chromium) against
+the seeded data before committing.
+
 ## What's not built yet, and what I'd improve with more time
 
-- **Frontend**: the dashboard, submit/approve controls, and payslip
-  views described in the brief don't exist yet, the `frontend/` files
-  are still scaffolding. Given the time available, I chose to make sure
-  the backend business logic was correct and tested rather than build a
-  UI on top of it.
+- **Frontend on the live demo**: the dashboard runs locally, served
+  directly by Flask, but the GitHub Actions deploy workflow only copies
+  `backend/` to the server, so the hosted instance doesn't serve it yet.
+  Next step is syncing `frontend/` in the deploy step too.
 - **Route-level tests**: `payroll_calculator.py` and `leave_rules.py`
   have full pytest coverage, but the Flask routes for employees, leave,
-  and payroll generation were only verified manually against a running
-  app, not with committed tests.
+  and payroll generation, and the frontend, were only verified manually
+  (including in a real browser) against a running app, not with
+  committed tests.
 - **Authorization**: any caller can approve or reject any leave request
-  by passing any `decided_by` employee id, there's no check that the
-  decider is actually that employee's manager, or any authentication at
-  all.
-- **Leave balances**: requests are checked against notice and coverage
-  rules, but there's no concept of an annual leave allowance per
-  employee to check a request against.
+  as any employee via the "Acting as" selector, there's no real
+  authentication, and no check that the decider is actually that
+  employee's manager.
+- **Leave allowance/accrual**: the dashboard shows leave *taken* this
+  year by type, not a *balance*, because there's no concept anywhere in
+  the backend of an annual allowance or accrual policy to check a
+  request against. Adding one (accrual rate, carryover rules, a real
+  remaining-balance figure) would be a natural next step.
 - **Overlap prevention**: nothing stops one employee from submitting two
   overlapping leave requests.
 - **Postgres**: SQLite is fine for this exercise, but a real multi-user

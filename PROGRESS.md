@@ -1,6 +1,6 @@
 # Project Tracker
 
-Last updated: 26 July 2026 (leave management and payroll wiring done, README rewritten)
+Last updated: 26 July 2026 (frontend built and verified in a real browser)
 
 Submission 2 deadline: 29 July 2026, 09:00 EAT
 
@@ -42,25 +42,41 @@ Submission 2 deadline: 29 July 2026, 09:00 EAT
       employees across all three teams, leave requests in all three
       statuses, and one generated payroll period with real prorated
       payslips. Verified it re-imports cleanly into a fresh database.
+- [x] Backend: GET /api/teams lookup, Flask now serves frontend/ as
+      static files with index.html at the root
+- [x] Frontend shell: tab nav, CSS (status badges, tables, forms, light
+      and dark), shared api.js (fetch wrappers, HTML escaping, loading/
+      empty/error state helpers)
+- [x] Frontend: employees view (table with deactivate, add-employee
+      form, org chart as a nested tree)
+- [x] Frontend: leave view (status filter, "Acting as" decider selector,
+      submit form, approve/reject with coverage-warning display)
+- [x] Frontend: payroll view (generate form, runs list, payslips table)
+- [x] Frontend: dashboard view (pending approvals, who's out now/next 14
+      days, leave taken this year by type labeled as usage not balance,
+      recent payroll runs)
+- [x] Frontend empty/loading/error states across all four views
+- [x] Verified all four tabs end to end in a real browser (Playwright-
+      driven headless Chromium): employee table and org chart render
+      correctly, leave badges/flags match seed data, payroll generation
+      produces correct prorated payslips through the actual UI, and the
+      duplicate-run guard surfaces in the form
 
 ## In progress
 - [ ] Nothing currently in progress
 
 ## Not started
-- [ ] Frontend: dashboard (pending approvals, who's out, leave balances,
-      payslips for selected period)
-- [ ] Frontend: employee page (list, org view, add/deactivate)
-- [ ] Frontend: leave page (submit, approve/reject)
-- [ ] Frontend: payroll page (generate, view payslips)
-- [ ] Frontend: empty/loading states
-- [ ] Frontend: favicon, simple logo/wordmark, restrained color palette
+- [ ] Sync frontend/ in the GitHub Actions deploy step so the live
+      cPanel demo serves the dashboard too, not just the JSON API
+- [ ] Frontend: favicon, simple logo/wordmark
 - [ ] Route-level automated tests for employees, leave, and payroll HTTP
       routes (currently only manually verified against the running app;
       payroll_calculator.py and leave_rules.py have full pytest coverage)
 - [ ] Authentication/authorization (any caller can currently approve or
-      reject any leave request via any decided_by employee id)
-- [ ] Leave balance tracking (an annual allowance to check requests
-      against, not just notice/coverage rules)
+      reject any leave request via any decided_by employee id, or via
+      the frontend's "Acting as" selector)
+- [ ] Leave allowance/accrual tracking (dashboard shows usage, not a
+      balance, since no allowance concept exists in the backend)
 - [ ] Overlap prevention for a single employee's leave requests
 - [ ] Final review pass: clone fresh, run locally, click through edge cases
 - [ ] Submission 2: repo link + SQL dump + optional hosted link
