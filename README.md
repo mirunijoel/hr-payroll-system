@@ -45,24 +45,24 @@ python -m pytest
 ### API endpoints
 
 Employees:
-- `GET /api/employees` — active employees (`?include_inactive=true` to include deactivated ones)
-- `GET /api/employees/org-chart` — nested reporting tree, active employees only
+- `GET /api/employees` - active employees (`?include_inactive=true` to include deactivated ones)
+- `GET /api/employees/org-chart` - nested reporting tree, active employees only
 - `GET /api/employees/<id>`
 - `POST /api/employees`
-- `PUT /api/employees/<id>` — partial updates supported
-- `POST /api/employees/<id>/deactivate` — soft delete, no hard delete exists
+- `PUT /api/employees/<id>` - partial updates supported
+- `POST /api/employees/<id>/deactivate` - soft delete, no hard delete exists
 
 Leave:
-- `GET /api/leave` — filterable with `?status=` and `?employee_id=`
+- `GET /api/leave` - filterable with `?status=` and `?employee_id=`
 - `GET /api/leave/<id>`
 - `POST /api/leave`
-- `POST /api/leave/<id>/approve` — body: `{"decided_by": <employee_id>}`
-- `POST /api/leave/<id>/reject` — same body
+- `POST /api/leave/<id>/approve` - body: `{"decided_by": <employee_id>}`
+- `POST /api/leave/<id>/reject` - same body
 
 Payroll:
 - `GET /api/payroll/runs`
-- `GET /api/payroll/runs/<id>` — includes the generated payslips
-- `POST /api/payroll/runs` — body: `{"period_start": "YYYY-MM-DD", "period_end": "YYYY-MM-DD"}`
+- `GET /api/payroll/runs/<id>` - includes the generated payslips
+- `POST /api/payroll/runs` - body: `{"period_start": "YYYY-MM-DD", "period_end": "YYYY-MM-DD"}`
 
 ## What I prioritized, and why
 
