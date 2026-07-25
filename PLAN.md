@@ -1,4 +1,4 @@
-# HR & Payroll System — My Project Plan
+# HR & Payroll System: My Project Plan
 
 This is my planning document for the assignment, written before/during
 development to keep my approach consistent and to record my reasoning on
@@ -9,13 +9,13 @@ scope, schema, formulas, and edge cases.
 - Frontend: HTML/CSS/vanilla JS (no framework)
 - Database: SQLite
 
-## Scope decision (documented reasoning — also goes in README)
+## Scope decision (documented reasoning, also goes in README)
 The brief explicitly says it's fine to do 1-2 modules well rather than all
 three shallowly. Priority order:
-1. **Employee Records** — foundational, everything depends on it. Full build.
-2. **Payroll** — the core business logic the brief cares most about
+1. **Employee Records**: foundational, everything depends on it. Full build.
+2. **Payroll**: the core business logic the brief cares most about
    (pro-rating, tax brackets, edge cases). Full build + thorough tests.
-3. **Leave Management** — functional workflow with a smaller, well-reasoned
+3. **Leave Management**: functional workflow with a smaller, well-reasoned
    set of safeguards (not exhaustive edge-case coverage), feeding into payroll.
 
 Stretch goals are not a priority until core is done and tested.
@@ -50,16 +50,15 @@ hr-payroll-system/
 │       ├── leave.js
 │       └── payroll.js
 ├── README.md
-├── CLAUDE.md                    # this file
 └── .gitignore
 ```
 
 ## Database schema
 - `teams` (id, name)
 - `employees` (id, name, role, team_id FK, manager_id FK→employees.id nullable
-  self-reference, start_date, salary, employment_type, is_active, created_at)
-  — **never hard-deleted**. Deactivate via `is_active=false`. No cascading
-  delete on payslips — payroll history must persist.
+  self-reference, start_date, salary, employment_type, is_active, created_at).
+  Never hard-deleted. Deactivate via `is_active=false`. No cascading delete
+  on payslips: payroll history must persist.
 - `leave_requests` (id, employee_id FK, leave_type, start_date, end_date,
   status [pending/approved/rejected], requested_at, decided_at, decided_by,
   reason)
@@ -68,8 +67,8 @@ hr-payroll-system/
   social_security_deduction, net_pay, unpaid_days, notes)
 
 ## Payroll formula (documented assumptions)
-- **Gross pay**: `monthly_salary / days_in_month * days_worked_this_period`
-  — accounts for both mid-month joiners AND unpaid leave days in the same
+- **Gross pay**: `monthly_salary / days_in_month * days_worked_this_period`.
+  Accounts for both mid-month joiners AND unpaid leave days in the same
   calculation (days_worked = days_in_month - unpaid_days - days_before_start).
 - **Tax**: progressive/marginal bracket system (NOT flat on whole amount):
   - 0 – 15,000: 10%
@@ -85,11 +84,11 @@ hr-payroll-system/
 
 ## Leave management rules (documented reasoning)
 Real leave systems fail in ways spreadsheets don't catch. Rules built in:
-1. **Notice period flag** — requests submitted with less than 3 days notice
+1. **Notice period flag**: requests submitted with less than 3 days notice
    are flagged (not blocked) so managers see they need urgent attention.
-2. **Team coverage check** — warns if approving a request would leave more
+2. **Team coverage check**: warns if approving a request would leave more
    than 50% of a team out simultaneously over overlapping dates.
-3. **Stale request escalation** — any pending request older than 5 days is
+3. **Stale request escalation**: any pending request older than 5 days is
    flagged "needs attention" on the dashboard.
 
 Leave integrates with payroll: approved `unpaid` leave days within a payroll
@@ -113,7 +112,7 @@ period reduce gross pay via the prorating formula above.
 - Any stretch goals added and why
 
 ## Non-negotiables
-- README claims must match actual code behavior — this will be checked.
+- README claims must match actual code behavior. This will be checked.
 - Core logic (payroll math, leave rules) needs real test coverage more than
   broad coverage elsewhere.
 - Deactivate, never delete, employees.
