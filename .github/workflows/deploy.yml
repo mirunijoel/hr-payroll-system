@@ -16,7 +16,7 @@ jobs:
           script: |
             cd ${{ secrets.APP_PATH }}
             git pull origin main
-            rsync -a --exclude 'tmp/' --exclude 'venv/' backend/ ${{ secrets.DEPLOY_TARGET_PATH }}/
+            tar cf - -C backend --exclude='tmp' --exclude='venv' --exclude='database.db' . | tar xf - -C ${{ secrets.DEPLOY_TARGET_PATH }}
             source ${{ secrets.VENV_PATH }}/bin/activate
             pip install -r ${{ secrets.DEPLOY_TARGET_PATH }}/requirements.txt
             touch ${{ secrets.DEPLOY_TARGET_PATH }}/tmp/restart.txt
