@@ -1,6 +1,6 @@
 # Project Tracker
 
-Last updated: 26 July 2026 (frontend built and verified in a real browser)
+Last updated: 26 July 2026 (route-level tests added for employees, leave, payroll)
 
 Submission 2 deadline: 29 July 2026, 09:00 EAT
 
@@ -66,15 +66,27 @@ Submission 2 deadline: 29 July 2026, 09:00 EAT
       DEPLOY_TARGET_PATH, no new secret needed), same no-deletion
       behavior as the backend copy. Live demo now serves the dashboard,
       not just the JSON API
+- [x] database.py: get_connection/init_db resolve DB_PATH at call time
+      instead of as a bound default, so tests can isolate against a
+      throwaway database by reassigning database.DB_PATH
+- [x] tests/conftest.py: client fixture, fresh seeded throwaway SQLite
+      database per test, never touches the real backend/database.db
+- [x] Route-level tests for employees (16), leave (20), and payroll (13),
+      95 tests total across the whole suite. Covers CRUD validation,
+      org chart nesting/exclusion, short-notice and staleness flags
+      (staleness tested by backdating a row so it's time-independent),
+      approve/reject transitions, the team coverage warning at and
+      above the 50% threshold, exact payslip figures against seeded
+      data (unpaid leave, mid-month joiner, pending leave correctly
+      ignored), duplicate-period rejection, and both zero-pay notes
 
 ## In progress
 - [ ] Nothing currently in progress
 
 ## Not started
 - [ ] Frontend: favicon, simple logo/wordmark
-- [ ] Route-level automated tests for employees, leave, and payroll HTTP
-      routes (currently only manually verified against the running app;
-      payroll_calculator.py and leave_rules.py have full pytest coverage)
+- [ ] Frontend automated tests (currently only manually verified,
+      including in a real browser via Playwright)
 - [ ] Authentication/authorization (any caller can currently approve or
       reject any leave request via any decided_by employee id, or via
       the frontend's "Acting as" selector)

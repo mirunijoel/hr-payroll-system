@@ -43,6 +43,10 @@ cd backend
 python -m pytest
 ```
 
+Route-level tests each get their own fresh, seeded, throwaway SQLite
+database (see `tests/conftest.py`), never the real `database.db`, so
+running the suite repeatedly is always safe.
+
 ### API endpoints
 
 - `GET /api/teams` - lookup list, used by the employee form's team dropdown
@@ -76,12 +80,10 @@ with, then Payroll, since it's the module with real, checkable business
 logic (proration, tax brackets, boundary behavior) and the one most
 likely to be wrong if rushed, then Leave Management, scoped to a
 functional workflow with three specific safeguards rather than every
-edge case a full leave system might need. Payroll and the leave
-safeguards both have automated test coverage, since that's where
-correctness actually matters, employee CRUD and the leave/payroll API
-routes were exercised manually against the running app during
-development but don't have dedicated test files yet, that's the first
-thing I'd add next.
+edge case a full leave system might need. The pure business logic
+(`payroll_calculator.py`, `leave_rules.py`) and the Flask routes for
+employees, leave, and payroll all have automated test coverage, 95
+tests total.
 
 ## Payroll formula
 
@@ -184,11 +186,9 @@ the seeded data before committing.
 
 ## What's not built yet, and what I'd improve with more time
 
-- **Route-level tests**: `payroll_calculator.py` and `leave_rules.py`
-  have full pytest coverage, but the Flask routes for employees, leave,
-  and payroll generation, and the frontend, were only verified manually
-  (including in a real browser) against a running app, not with
-  committed tests.
+- **Frontend tests**: the frontend was verified manually (including in
+  a real browser via Playwright) against a running app, but doesn't
+  have automated tests, unlike the backend routes and business logic.
 - **Authorization**: any caller can approve or reject any leave request
   as any employee via the "Acting as" selector, there's no real
   authentication, and no check that the decider is actually that
