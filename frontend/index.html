@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>HR & Payroll</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="app-header">
+    <h1>HR &amp; Payroll</h1>
+    <nav class="app-nav">
+      <button type="button" data-view="dashboard" class="active">Dashboard</button>
+      <button type="button" data-view="employees">Employees</button>
+      <button type="button" data-view="leave">Leave</button>
+      <button type="button" data-view="payroll">Payroll</button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="view-dashboard" class="view active"></section>
+    <section id="view-employees" class="view"></section>
+    <section id="view-leave" class="view"></section>
+    <section id="view-payroll" class="view"></section>
+  </main>
+
+  <script src="js/api.js"></script>
+  <script src="js/employees.js"></script>
+  <script src="js/leave.js"></script>
+  <script src="js/payroll.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script>
+    const views = {
+      dashboard: renderDashboard,
+      employees: renderEmployees,
+      leave: renderLeave,
+      payroll: renderPayroll,
+    };
+
+    document.querySelectorAll('.app-nav button').forEach((button) => {
+      button.addEventListener('click', () => {
+        const target = button.dataset.view;
+
+        document.querySelectorAll('.app-nav button').forEach((b) => b.classList.toggle('active', b === button));
+        document.querySelectorAll('.view').forEach((section) => {
+          section.classList.toggle('active', section.id === `view-${target}`);
+        });
+
+        views[target]();
+      });
+    });
+
+    renderDashboard();
+  </script>
+</body>
+</html>
