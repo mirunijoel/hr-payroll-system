@@ -3,6 +3,7 @@ from flask import Flask, jsonify
 from database import init_db
 from routes.employees import bp as employees_bp
 from routes.leave import bp as leave_bp
+from routes.payroll import bp as payroll_bp
 
 
 def create_app(seed_db=True):
@@ -12,6 +13,7 @@ def create_app(seed_db=True):
 
     app.register_blueprint(employees_bp)
     app.register_blueprint(leave_bp)
+    app.register_blueprint(payroll_bp)
 
     @app.get("/health")
     def health():
