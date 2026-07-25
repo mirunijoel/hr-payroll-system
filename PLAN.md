@@ -5,10 +5,6 @@ development to keep my approach consistent and to record my reasoning on
 scope, schema, formulas, and edge cases.
 
 ## Writing rules (permanent)
-- Never use em-dashes (—) anywhere in code, comments, commit messages, or
-  docs. Use commas, colons, or periods instead.
-- Never mention AI, Claude, or Anthropic anywhere in the codebase, comments,
-  or commit history.
 - Every public function gets a docstring, especially in payroll_calculator.py
   and leave_rules.py. Docstrings explain assumptions and edge-case handling,
   not just parameters and return values.

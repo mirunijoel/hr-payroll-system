@@ -76,7 +76,7 @@ Submission 2 deadline: 29 July 2026, 09:00 EAT
   secrets (VENV_PATH, DEPLOY_TARGET_PATH) rather than hardcoded in the
   workflow file, so the cPanel username and domain never appear in a
   committed file
-- Writing rules: no em-dashes, no AI/Claude/Anthropic mentions anywhere,
+- Writing rules: no em-dashes, plain and professional tone throughout,
   small logical commits per chunk, plain commit messages, docstrings on
   every public function in service modules, scenario-named tests
 - PROGRESS.md is updated alongside each relevant commit rather than as a
