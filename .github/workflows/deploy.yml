@@ -16,6 +16,6 @@ jobs:
           script: |
             cd ${{ secrets.APP_PATH }}
             git pull origin main
-            source /home1/pbcbible/virtualenv/hr-payroll-system.pbcbiblestudy.org/backend/3.13/bin/activate
+            source ${{ secrets.VENV_PATH }}/bin/activate
             pip install -r backend/requirements.txt
             touch backend/tmp/restart.txt
