@@ -15,10 +15,9 @@ directly by Flask, no build step, no framework.
 
 Hosted at [hr-payroll-system.pbcbiblestudy.org](https://hr-payroll-system.pbcbiblestudy.org)
 on personal cPanel hosting (Render and Railway free tiers were both
-exhausted at the time). See `DEPLOYMENT.md` for how that's set up. The
-deploy workflow currently only copies `backend/` to the server, so the
-live site serves the JSON API but not yet the frontend dashboard, that
-only runs locally for now (see "What's not built yet" below).
+exhausted at the time). See `DEPLOYMENT.md` for how that's set up. Every
+push to `main` deploys both `backend/` and `frontend/`, so the dashboard
+is live there too, not just the JSON API.
 
 ## Running locally
 
@@ -185,10 +184,6 @@ the seeded data before committing.
 
 ## What's not built yet, and what I'd improve with more time
 
-- **Frontend on the live demo**: the dashboard runs locally, served
-  directly by Flask, but the GitHub Actions deploy workflow only copies
-  `backend/` to the server, so the hosted instance doesn't serve it yet.
-  Next step is syncing `frontend/` in the deploy step too.
 - **Route-level tests**: `payroll_calculator.py` and `leave_rules.py`
   have full pytest coverage, but the Flask routes for employees, leave,
   and payroll generation, and the frontend, were only verified manually

@@ -17,6 +17,9 @@ jobs:
             cd ${{ secrets.APP_PATH }}
             git pull origin main
             tar cf - -C backend --exclude='tmp' --exclude='venv' --exclude='database.db' . | tar xf - -C ${{ secrets.DEPLOY_TARGET_PATH }}
+            FRONTEND_TARGET_PATH="$(dirname ${{ secrets.DEPLOY_TARGET_PATH }})/frontend"
+            mkdir -p "$FRONTEND_TARGET_PATH"
+            tar cf - -C frontend . | tar xf - -C "$FRONTEND_TARGET_PATH"
             source ${{ secrets.VENV_PATH }}/bin/activate
             pip install -r ${{ secrets.DEPLOY_TARGET_PATH }}/requirements.txt
             touch ${{ secrets.DEPLOY_TARGET_PATH }}/tmp/restart.txt

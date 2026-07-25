@@ -61,13 +61,16 @@ Submission 2 deadline: 29 July 2026, 09:00 EAT
       correctly, leave badges/flags match seed data, payroll generation
       produces correct prorated payslips through the actual UI, and the
       duplicate-run guard surfaces in the form
+- [x] Sync frontend/ in the deploy workflow: copied via tar into a
+      sibling directory of the cPanel application root (derived from
+      DEPLOY_TARGET_PATH, no new secret needed), same no-deletion
+      behavior as the backend copy. Live demo now serves the dashboard,
+      not just the JSON API
 
 ## In progress
 - [ ] Nothing currently in progress
 
 ## Not started
-- [ ] Sync frontend/ in the GitHub Actions deploy step so the live
-      cPanel demo serves the dashboard too, not just the JSON API
 - [ ] Frontend: favicon, simple logo/wordmark
 - [ ] Route-level automated tests for employees, leave, and payroll HTTP
       routes (currently only manually verified against the running app;
