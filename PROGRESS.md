@@ -38,6 +38,10 @@ Submission 2 deadline: 29 July 2026, 09:00 EAT
 - [x] README.md full rewrite, verified against actual code and against
       the live deployment (checked /health, /api/employees, /api/leave
       on the hosted instance, all current)
+- [x] SQL dump (database/dump.sql): full schema plus seed teams,
+      employees across all three teams, leave requests in all three
+      statuses, and one generated payroll period with real prorated
+      payslips. Verified it re-imports cleanly into a fresh database.
 
 ## In progress
 - [ ] Nothing currently in progress
@@ -58,8 +62,6 @@ Submission 2 deadline: 29 July 2026, 09:00 EAT
 - [ ] Leave balance tracking (an annual allowance to check requests
       against, not just notice/coverage rules)
 - [ ] Overlap prevention for a single employee's leave requests
-- [ ] SQL dump (schema + sample data: employees, teams, leave requests,
-      one generated payroll period) committed to repo
 - [ ] Final review pass: clone fresh, run locally, click through edge cases
 - [ ] Submission 2: repo link + SQL dump + optional hosted link
 
