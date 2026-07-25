@@ -4,6 +4,25 @@ This is my planning document for the assignment, written before/during
 development to keep my approach consistent and to record my reasoning on
 scope, schema, formulas, and edge cases.
 
+## Writing rules (permanent)
+- Never use em-dashes (—) anywhere in code, comments, commit messages, or
+  docs. Use commas, colons, or periods instead.
+- Never mention AI, Claude, or Anthropic anywhere in the codebase, comments,
+  or commit history.
+- Every public function gets a docstring, especially in payroll_calculator.py
+  and leave_rules.py. Docstrings explain assumptions and edge-case handling,
+  not just parameters and return values.
+- Every service module (payroll_calculator.py, leave_rules.py, and any
+  future ones) gets a short module-level docstring at the top summarizing
+  the business rules it implements.
+- Inline comments only where the reasoning isn't obvious from the code
+  itself (bracket boundaries, rounding, safeguard thresholds). Don't
+  comment lines that just restate what the code does.
+- Test function names describe the scenario under test (e.g.
+  test_prorates_gross_pay_for_mid_month_joiner), never test_1, test_2, etc.
+- Tone stays plain and professional throughout: code, comments, docstrings,
+  commit messages, and docs.
+
 ## Stack
 - Backend: Flask (Python)
 - Frontend: HTML/CSS/vanilla JS (no framework)
