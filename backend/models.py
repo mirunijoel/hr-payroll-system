@@ -1,9 +1,11 @@
-from datetime import datetime
+from datetime import date, datetime
 
 from database import get_connection
 
 EMPLOYMENT_TYPES = ("full_time", "part_time", "contract")
 UPDATABLE_FIELDS = ("name", "role", "team_id", "manager_id", "start_date", "salary", "employment_type")
+LEAVE_TYPES = ("paid", "unpaid", "sick")
+LEAVE_STATUSES = ("pending", "approved", "rejected")
 
 
 def _row_to_dict(row):
@@ -73,6 +75,30 @@ def validate_employee_payload(data, employee_id=None, partial=False):
 
     if "employment_type" in data and data["employment_type"] not in EMPLOYMENT_TYPES:
         errors.append("employment_type must be one of " + ", ".join(EMPLOYMENT_TYPES))
+
+    return errors
+
+
+def validate_leave_request_payload(data):
+    errors = []
+
+    employee_id = data.get("employee_id")
+    if employee_id is None:
+        errors.append("employee_id is required")
+    elif not active_employee_exists(employee_id):
+        errors.append(f"employee_id {employee_id} does not reference an active employee")
+
+    if data.get("leave_type") not in LEAVE_TYPES:
+        errors.append("leave_type must be one of " + ", ".join(LEAVE_TYPES))
+
+    start_date = data.get("start_date")
+    end_date = data.get("end_date")
+    if not _is_valid_date(start_date):
+        errors.append("start_date must be a valid YYYY-MM-DD date")
+    if not _is_valid_date(end_date):
+        errors.append("end_date must be a valid YYYY-MM-DD date")
+    if _is_valid_date(start_date) and _is_valid_date(end_date) and end_date < start_date:
+        errors.append("end_date cannot be before start_date")
 
     return errors
 
@@ -184,3 +210,156 @@ def get_org_chart():
         else:
             roots.append(node)
     return roots
+
+
+def create_leave_request(data):
+    conn = get_connection()
+    try:
+        with conn:
+            cursor = conn.execute(
+                """
+                INSERT INTO leave_requests (employee_id, leave_type, start_date, end_date, reason)
+                VALUES (?, ?, ?, ?, ?)
+                """,
+                (
+                    data["employee_id"],
+                    data["leave_type"],
+                    data["start_date"],
+                    data["end_date"],
+                    data.get("reason"),
+                ),
+            )
+        return cursor.lastrowid
+    finally:
+        conn.close()
+
+
+def get_leave_request(request_id):
+    conn = get_connection()
+    try:
+        row = conn.execute(
+            """
+            SELECT lr.*, e.name AS employee_name, e.team_id AS employee_team_id
+            FROM leave_requests lr
+            JOIN employees e ON e.id = lr.employee_id
+            WHERE lr.id = ?
+            """,
+            (request_id,),
+        ).fetchone()
+        return _row_to_dict(row)
+    finally:
+        conn.close()
+
+
+def list_leave_requests(status=None, employee_id=None):
+    conn = get_connection()
+    try:
+        query = """
+            SELECT lr.*, e.name AS employee_name, e.team_id AS employee_team_id
+            FROM leave_requests lr
+            JOIN employees e ON e.id = lr.employee_id
+            WHERE 1 = 1
+        """
+        params = []
+        if status is not None:
+            query += " AND lr.status = ?"
+            params.append(status)
+        if employee_id is not None:
+            query += " AND lr.employee_id = ?"
+            params.append(employee_id)
+        query += " ORDER BY lr.requested_at"
+        rows = conn.execute(query, params).fetchall()
+        return [_row_to_dict(row) for row in rows]
+    finally:
+        conn.close()
+
+
+def decide_leave_request(request_id, status, decided_by, decided_at):
+    conn = get_connection()
+    try:
+        with conn:
+            cursor = conn.execute(
+                """
+                UPDATE leave_requests
+                SET status = ?, decided_by = ?, decided_at = ?
+                WHERE id = ?
+                """,
+                (status, decided_by, decided_at, request_id),
+            )
+        return cursor.rowcount > 0
+    finally:
+        conn.close()
+
+
+def count_active_team_members(team_id):
+    conn = get_connection()
+    try:
+        row = conn.execute(
+            "SELECT COUNT(*) AS c FROM employees WHERE team_id = ? AND is_active = 1", (team_id,)
+        ).fetchone()
+        return row["c"]
+    finally:
+        conn.close()
+
+
+def count_team_members_on_approved_leave(team_id, start_date, end_date, exclude_employee_id=None):
+    """Count active team members with an approved leave request overlapping the given date range.
+
+    The overlap check mirrors leave_rules.date_ranges_overlap (start_a <=
+    end_b AND start_b <= end_a), done in SQL here since it needs to scan
+    the team's leave requests rather than compare two known ranges.
+    """
+    conn = get_connection()
+    try:
+        query = """
+            SELECT COUNT(DISTINCT lr.employee_id) AS c
+            FROM leave_requests lr
+            JOIN employees e ON e.id = lr.employee_id
+            WHERE e.team_id = ?
+              AND e.is_active = 1
+              AND lr.status = 'approved'
+              AND lr.start_date <= ?
+              AND lr.end_date >= ?
+        """
+        params = [team_id, end_date, start_date]
+        if exclude_employee_id is not None:
+            query += " AND lr.employee_id != ?"
+            params.append(exclude_employee_id)
+        row = conn.execute(query, params).fetchone()
+        return row["c"]
+    finally:
+        conn.close()
+
+
+def sum_approved_unpaid_days_in_period(employee_id, period_start, period_end):
+    """Sum approved unpaid leave days for one employee that fall inside a payroll period.
+
+    Clips each leave request to the period boundaries before counting, so
+    a leave request that only partially overlaps the period only
+    contributes the days actually inside it.
+    """
+    conn = get_connection()
+    try:
+        rows = conn.execute(
+            """
+            SELECT start_date, end_date
+            FROM leave_requests
+            WHERE employee_id = ?
+              AND leave_type = 'unpaid'
+              AND status = 'approved'
+              AND start_date <= ?
+              AND end_date >= ?
+            """,
+            (employee_id, period_end, period_start),
+        ).fetchall()
+    finally:
+        conn.close()
+
+    total = 0
+    for row in rows:
+        clipped_start = max(row["start_date"], period_start)
+        clipped_end = min(row["end_date"], period_end)
+        start = date.fromisoformat(clipped_start)
+        end = date.fromisoformat(clipped_end)
+        total += (end - start).days + 1
+    return total
