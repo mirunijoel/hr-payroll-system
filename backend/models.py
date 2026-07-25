@@ -20,6 +20,15 @@ def _is_valid_date(value):
         return False
 
 
+def list_teams():
+    conn = get_connection()
+    try:
+        rows = conn.execute("SELECT * FROM teams ORDER BY name").fetchall()
+        return [_row_to_dict(row) for row in rows]
+    finally:
+        conn.close()
+
+
 def team_exists(team_id):
     conn = get_connection()
     try:
