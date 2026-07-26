@@ -95,12 +95,14 @@ Submission 2 deadline: 29 July 2026, 09:00 EAT
       false. `npx playwright test` alone now resets, starts, runs, and
       tears down, no manual terminal steps. Verified twice in a row.
       README and this file updated accordingly
+- [x] Favicon: frontend/favicon.svg, a rounded brand-blue square with an
+      "HP" monogram, linked from index.html and confirmed served
+      correctly by Flask's static route
 
 ## In progress
 - [ ] Nothing currently in progress
 
 ## Not started
-- [ ] Frontend: favicon, simple logo/wordmark
 - [ ] Authentication/authorization (any caller can currently approve or
       reject any leave request via any decided_by employee id, or via
       the frontend's "Acting as" selector)
