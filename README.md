@@ -47,6 +47,37 @@ Route-level tests each get their own fresh, seeded, throwaway SQLite
 database (see `tests/conftest.py`), never the real `database.db`, so
 running the suite repeatedly is always safe.
 
+### Frontend tests
+
+The frontend has a Playwright end-to-end suite (`frontend/tests/`)
+that drives a real browser against a running instance of the app. It
+does not spin up its own server or database like the backend suite
+does, it needs both running first:
+
+```
+# terminal 1: reset and start a fresh backend
+cd backend
+rm -f database.db
+source venv/Scripts/activate
+python app.py
+
+# terminal 2: run the frontend tests
+cd frontend
+npm install
+npx playwright test
+```
+
+**This suite shares one server and one SQLite database across the
+whole run**, unlike the backend's per-test throwaway databases, so
+`rm -f database.db` before starting the server is not optional: running
+the suite twice against the same accumulated data causes real failures
+(a payroll run that already exists, duplicate throwaway employees, and
+so on). Tests are written to use freshly created data with distinctive
+names rather than mutating the seeded rows, and the three payroll tests
+deliberately depend on running in file order (empty state, then
+generate, then reject the duplicate), which Playwright preserves within
+a single file.
+
 ### API endpoints
 
 - `GET /api/teams` - lookup list, used by the employee form's team dropdown
@@ -81,9 +112,10 @@ logic (proration, tax brackets, boundary behavior) and the one most
 likely to be wrong if rushed, then Leave Management, scoped to a
 functional workflow with three specific safeguards rather than every
 edge case a full leave system might need. The pure business logic
-(`payroll_calculator.py`, `leave_rules.py`) and the Flask routes for
-employees, leave, and payroll all have automated test coverage, 95
-tests total.
+(`payroll_calculator.py`, `leave_rules.py`), the Flask routes for
+employees, leave, and payroll, and the frontend all have automated test
+coverage: 95 backend tests (pytest) plus 16 end-to-end tests
+(Playwright) driving a real browser against the four dashboard views.
 
 ## Payroll formula
 
@@ -186,9 +218,6 @@ the seeded data before committing.
 
 ## What's not built yet, and what I'd improve with more time
 
-- **Frontend tests**: the frontend was verified manually (including in
-  a real browser via Playwright) against a running app, but doesn't
-  have automated tests, unlike the backend routes and business logic.
 - **Authorization**: any caller can approve or reject any leave request
   as any employee via the "Acting as" selector, there's no real
   authentication, and no check that the decider is actually that
@@ -202,6 +231,11 @@ the seeded data before committing.
   overlapping leave requests.
 - **Postgres**: SQLite is fine for this exercise, but a real multi-user
   deployment would want a database that handles concurrent writes better.
+- **Frontend test setup**: the Playwright suite requires manually
+  starting a freshly reset backend first, rather than managing its own
+  server and database per run. Worth automating (a setup script that
+  resets the database and starts/stops Flask around the test run)
+  before wiring this into CI.
 
 ## Stretch goals
 

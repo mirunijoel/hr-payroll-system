@@ -1,6 +1,6 @@
 # Project Tracker
 
-Last updated: 26 July 2026 (route-level tests added for employees, leave, payroll)
+Last updated: 26 July 2026 (frontend end-to-end tests added)
 
 Submission 2 deadline: 29 July 2026, 09:00 EAT
 
@@ -79,14 +79,23 @@ Submission 2 deadline: 29 July 2026, 09:00 EAT
       above the 50% threshold, exact payslip figures against seeded
       data (unpaid leave, mid-month joiner, pending leave correctly
       ignored), duplicate-period rejection, and both zero-pay notes
+- [x] Frontend end-to-end tests (Playwright, 16 tests across 4 spec
+      files): dashboard reads seeded data, employees create/deactivate
+      with throwaway data, leave submit/approve plus the missing-decider
+      error path, payroll generate with exact figures checked against
+      seed data plus the duplicate-period guard. Confirmed the suite
+      passes twice in a row against a freshly reset database, and
+      documented (README) that it requires a reset between runs since
+      it shares one server/database for the whole run, unlike the
+      backend's per-test isolation
 
 ## In progress
 - [ ] Nothing currently in progress
 
 ## Not started
 - [ ] Frontend: favicon, simple logo/wordmark
-- [ ] Frontend automated tests (currently only manually verified,
-      including in a real browser via Playwright)
+- [ ] Automate the frontend test setup (reset database, start/stop
+      Flask around the run) before wiring it into CI
 - [ ] Authentication/authorization (any caller can currently approve or
       reject any leave request via any decided_by employee id, or via
       the frontend's "Acting as" selector)
