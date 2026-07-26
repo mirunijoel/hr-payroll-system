@@ -15,4 +15,15 @@ module.exports = defineConfig({
     locale: 'en-US',
     trace: 'retain-on-failure',
   },
+  // Resets backend/database.db and starts a fresh Flask instance before
+  // the run, then tears it down after, see scripts/reset-and-start-backend.js.
+  // reuseExistingServer is always false: reusing a server from a previous
+  // run would mean reusing its accumulated database too, which is exactly
+  // what breaks this suite (see the comment above).
+  webServer: {
+    command: 'node scripts/reset-and-start-backend.js',
+    url: 'http://127.0.0.1:5000/health',
+    reuseExistingServer: false,
+    timeout: 30000,
+  },
 });

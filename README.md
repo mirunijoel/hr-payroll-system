@@ -50,33 +50,34 @@ running the suite repeatedly is always safe.
 ### Frontend tests
 
 The frontend has a Playwright end-to-end suite (`frontend/tests/`)
-that drives a real browser against a running instance of the app. It
-does not spin up its own server or database like the backend suite
-does, it needs both running first:
+that drives a real browser against a running instance of the app:
 
 ```
-# terminal 1: reset and start a fresh backend
-cd backend
-rm -f database.db
-source venv/Scripts/activate
-python app.py
-
-# terminal 2: run the frontend tests
 cd frontend
 npm install
 npx playwright test
 ```
 
+That's the whole setup. Playwright's `webServer` config
+(`playwright.config.js`) runs `scripts/reset-and-start-backend.js`
+before the run and shuts the process down after: the script deletes
+`backend/database.db` if present, then starts the Flask app straight
+from the factory (not `python app.py`, so it runs without the debug
+reloader forking a second process Playwright couldn't clean up), so
+`python` needs to be on `PATH` with `backend/requirements.txt`
+installed, but nothing needs to be started by hand first.
+
 **This suite shares one server and one SQLite database across the
 whole run**, unlike the backend's per-test throwaway databases, so
-`rm -f database.db` before starting the server is not optional: running
-the suite twice against the same accumulated data causes real failures
-(a payroll run that already exists, duplicate throwaway employees, and
-so on). Tests are written to use freshly created data with distinctive
-names rather than mutating the seeded rows, and the three payroll tests
-deliberately depend on running in file order (empty state, then
-generate, then reject the duplicate), which Playwright preserves within
-a single file.
+resetting the database before starting the server is not optional:
+running the suite twice against the same accumulated data causes real
+failures (a payroll run that already exists, duplicate throwaway
+employees, and so on), which is why the reset happens automatically
+every run rather than relying on someone remembering to do it. Tests
+are written to use freshly created data with distinctive names rather
+than mutating the seeded rows, and the three payroll tests deliberately
+depend on running in file order (empty state, then generate, then
+reject the duplicate), which Playwright preserves within a single file.
 
 ### API endpoints
 
@@ -231,11 +232,10 @@ the seeded data before committing.
   overlapping leave requests.
 - **Postgres**: SQLite is fine for this exercise, but a real multi-user
   deployment would want a database that handles concurrent writes better.
-- **Frontend test setup**: the Playwright suite requires manually
-  starting a freshly reset backend first, rather than managing its own
-  server and database per run. Worth automating (a setup script that
-  resets the database and starts/stops Flask around the test run)
-  before wiring this into CI.
+- **Frontend tests in CI**: the suite now resets its own database and
+  manages the Flask process per run (see Frontend tests above), so it's
+  ready to wire into a CI job. Not done yet since the only workflow in
+  this repo is the cPanel deploy, not a test runner.
 
 ## Stretch goals
 

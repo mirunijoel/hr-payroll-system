@@ -1,6 +1,6 @@
 # Project Tracker
 
-Last updated: 26 July 2026 (frontend end-to-end tests added)
+Last updated: 26 July 2026 (frontend test setup automated with a reset script)
 
 Submission 2 deadline: 29 July 2026, 09:00 EAT
 
@@ -88,14 +88,19 @@ Submission 2 deadline: 29 July 2026, 09:00 EAT
       documented (README) that it requires a reset between runs since
       it shares one server/database for the whole run, unlike the
       backend's per-test isolation
+- [x] Automated the frontend test setup: scripts/reset-and-start-backend.js
+      deletes database.db and starts Flask via the app factory (no debug
+      reloader, so there's no orphaned second process), wired in through
+      Playwright's webServer config with reuseExistingServer always
+      false. `npx playwright test` alone now resets, starts, runs, and
+      tears down, no manual terminal steps. Verified twice in a row.
+      README and this file updated accordingly
 
 ## In progress
 - [ ] Nothing currently in progress
 
 ## Not started
 - [ ] Frontend: favicon, simple logo/wordmark
-- [ ] Automate the frontend test setup (reset database, start/stop
-      Flask around the run) before wiring it into CI
 - [ ] Authentication/authorization (any caller can currently approve or
       reject any leave request via any decided_by employee id, or via
       the frontend's "Acting as" selector)
