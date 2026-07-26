@@ -103,11 +103,11 @@ def validate_leave_request_payload(data):
     start_date = data.get("start_date")
     end_date = data.get("end_date")
     if not _is_valid_date(start_date):
-        errors.append("start_date must be a valid YYYY-MM-DD date")
+        errors.append("start date must be a valid YYYY-MM-DD date")
     if not _is_valid_date(end_date):
-        errors.append("end_date must be a valid YYYY-MM-DD date")
+        errors.append("end date must be a valid YYYY-MM-DD date")
     if _is_valid_date(start_date) and _is_valid_date(end_date) and end_date < start_date:
-        errors.append("end_date cannot be before start_date")
+        errors.append("end date cannot be before start date")
 
     return errors
 
