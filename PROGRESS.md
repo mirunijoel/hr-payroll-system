@@ -98,6 +98,14 @@ Submission 2 deadline: 29 July 2026, 09:00 EAT
 - [x] Favicon: frontend/favicon.svg, a rounded brand-blue square with an
       "HP" monogram, linked from index.html and confirmed served
       correctly by Flask's static route
+- [x] Final review pass: mirrored the working tree into a clean
+      directory, ran the full setup from zero (new venv, pip install,
+      npm install, no manual server steps), all 95 backend and 16
+      frontend tests passed. Clicked through all four views plus two
+      edge cases not covered by the automated suite (leave end-date
+      before start-date, duplicate payroll period), both rejected
+      correctly with visible error messages. Fixed the leave error
+      wording issue found this way
 
 ## In progress
 - [ ] Nothing currently in progress
@@ -105,12 +113,17 @@ Submission 2 deadline: 29 July 2026, 09:00 EAT
 ## Not started
 - [ ] Authentication/authorization (any caller can currently approve or
       reject any leave request via any decided_by employee id, or via
-      the frontend's "Acting as" selector)
+      the frontend's "Acting as" selector). Documented as an
+      intentional scope cut, not a gap to close before Submission 2
 - [ ] Leave allowance/accrual tracking (dashboard shows usage, not a
-      balance, since no allowance concept exists in the backend)
-- [ ] Overlap prevention for a single employee's leave requests
-- [ ] Final review pass: clone fresh, run locally, click through edge cases
-- [ ] Submission 2: repo link + SQL dump + optional hosted link
+      balance, since no allowance concept exists in the backend).
+      Same, documented scope cut
+- [ ] Overlap prevention for a single employee's leave requests. Same,
+      documented scope cut
+- [ ] Submission 2: repo link + SQL dump + optional hosted link. Repo
+      is pushed and up to date (main @ 454f72e), dump.sql already
+      exists, cPanel hosted instance already deploys on push, so this
+      is submitting what already exists rather than new work
 
 ## Decisions made along the way (for reference)
 - Scope priority: Employee Records + Payroll as full/robust core, Leave
